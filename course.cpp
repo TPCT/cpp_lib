@@ -290,3 +290,35 @@ double matrix_determinate(Matrix matrix){
         return result;
     }
 }
+Row get_column(Matrix matrix, int colnum){
+    if (matrix.size() > 0 && matrix[0].size() > 0 && colnum < matrix[0].size()){
+        Row column(0);
+        for (Row row : matrix){
+            column.push_back(row[colnum]);
+        }
+        return column;
+    }
+    return Row(0);
+}
+void Print_Vector(Row row){
+    for (double column : row){
+        cout << column << " ";
+    }
+    cout << endl;
+}
+Matrix Product_Matrix(Matrix mat1, Matrix mat2){
+    Matrix product_matrix(mat1.size(), Row(0));
+    if (mat1.size() > 0 && mat2.size() > 0 && mat1[0].size() == mat2.size()){
+        for (int i = 0; i < mat1.size(); i++){
+            for (int k = 0; k < mat1[i].size(); k++){
+                double result = 0;
+                Row new_column = get_column(mat2, k);
+                for (int j = 0; j < new_column.size(); j++ ){
+                        result += mat1[i][j] * new_column[j];
+                }
+                product_matrix[i].push_back(result);
+            }
+        }
+    }
+    return product_matrix;
+}

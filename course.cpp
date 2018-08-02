@@ -270,3 +270,23 @@ Matrix Matrix_scalar_multiplication(double scalar, Matrix mat1){
             return summation_matrix;
         }else{return Matrix(0, vector<double>(0));}
 }
+double matrix_determinate(Matrix matrix){
+    double result = 0;
+    int c = 1;
+    if (matrix.size() == 1 && matrix[0].size() == 1){return matrix[0][0];}
+    if (matrix.size() && matrix[0].size() == matrix.size()){
+        for (int i = 0; i < matrix[0].size(); i++){
+            Matrix minor_matrix(matrix.size() - 1, Row(0));
+            for (int j = 1; j < matrix.size(); j++){
+                for (int k = 0; k < matrix[0].size(); k++){
+                    if (i != k){
+                        minor_matrix[j-1].push_back(matrix[j][k]);
+                    }
+                }
+            }
+            result += matrix[0][i] * c * matrix_determinate(minor_matrix);
+            c *= -1;
+        }
+        return result;
+    }
+}

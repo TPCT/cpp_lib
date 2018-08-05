@@ -20,7 +20,7 @@ string SubStr(string str,unsigned start,unsigned end){
     for (; start <= end; new_string += str[start], start++);
     return new_string;
 }
-Matrix_Size Matrix_Len(double** matrix){
+Matrix_Size Matrix_Len(pptr matrix){
     unsigned i=0, j=0, first_time = 1;
     for (; *(matrix+i) != NULL; i++)
         if (first_time){
@@ -29,12 +29,12 @@ Matrix_Size Matrix_Len(double** matrix){
     Matrix_Size size{i, j};
     return size;
 }
-size_t ArrLen(string* array){
+size_t ArrLen(sptr array){
     int i = 0;
     if (array) for (; 0 < array[i].length(); i++);
     return i;
 }
-unsigned Column_Len(double* column){
+unsigned Column_Len(dptr column){
     unsigned i=0;
     for(; *(column+i) != ULLONG_MAX; i++);
     return i;
@@ -45,61 +45,66 @@ double Sum(int start, int end){
     return sum;
 }
 double Cslope(double x1, double y1, double x2, double y2){return (x2 - x1 != 0) ? ((y2 - y1)/(x2 - x1)) : ULLONG_MAX;}
+double factorial(double n){
+    double result = 1;
+    while (n){result *= n;n-=1;}
+    return result;
+}
+double npr(double n, double r){return factorial(n)/factorial(n-r);}
 double Sum_Sequence(double* list){
     double result = 0;
     for (int i=0; i<Column_Len(list); i++)
         result += list[i];
     return result;
 }
-double Matrix_Determinate(double** matrix){
+double Matrix_Determinant(Matrix matrix){
     double result = 0;
-    Matrix_Size size = Matrix_Len(matrix);
+    Matrix_Size size = matrix.size;
     int c = 1;
-    if (size.rows == 1 && size.columns == 1){return matrix[0][0];}
+    if (size.rows == 1 && size.columns == 1){return matrix.matrix[0][0];}
     if (size.rows && size.columns == size.rows){
         for (int i = 0; i < size.columns; i++){
-            double** minor_matrix = MatrixMK(size.rows-1, size.columns-1);
+            Matrix_Size new_size{size.rows-1, size.columns-1};
+            Matrix minor_matrix = MatrixMK(new_size);
             for (int j = 1; j < size.rows; j++){
                 unsigned index = 0;
                 for (int k = 0; k < size.columns; k++){
                     if (i != k){
-                        minor_matrix[j-1][index] = matrix[j][k];
+                        minor_matrix.matrix[j-1][index] = matrix.matrix[j][k];
                         index++;
                     }
                 }
             }
-            result += matrix[0][i] * c * Matrix_Determinate(minor_matrix);
+            result += matrix.matrix[0][i] * c * Matrix_Determinant(minor_matrix);
             c *= -1;
         }
         return result;
     }
 }
-double** MatrixMK(unsigned rows, unsigned columns){
-    columns++; rows++;
-    double** matrix = new double*[rows];
-    for (int i=0; i<rows; i++){
-        matrix[i] = new double[columns];
-        for (int j=0; j<columns; j++){
+Matrix MatrixMK(Matrix_Size size){
+    pptr matrix = new double*[size.rows];
+    for (int i=0; i<size.rows; i++){
+        matrix[i] = new double[size.columns];
+        for (int j=0; j<size.columns; j++){
             matrix[i][j] = 0;
         }
-        matrix[i][columns-1] = ULLONG_MAX;
     }
-    matrix[rows-1] = NULL;
-    return matrix;
+    return Matrix{matrix, size, 0};
 }
-double** Fill_Matrix(unsigned rows, unsigned columns){
-  double** matrix = MatrixMK(rows, columns);
-  for (unsigned i = 0; i < rows; i++) {
+Matrix Fill_Matrix(Matrix_Size size){
+  Matrix matrix = MatrixMK(size);
+  for (unsigned i = 0; i < size.rows; i++) {
         a:
         string input_data;
         cout << "Fill Row[" << i+1 << "]: ";
+        cin >> skipws;
         getline(cin, input_data);
-        if (ArrLen(Split(input_data, " ")) >= columns) {
-          for (unsigned j=0; j<columns; j++){
+        if (Split(input_data, " ").size >= size.columns) {
+          for (unsigned j=0; j<size.columns; j++){
               string new_data = "";
               for (; input_data.length() && input_data[0] != ' '; new_data += input_data[0], input_data.erase(input_data.begin()));
               if (input_data.length() > 0) input_data.erase(input_data.begin());
-              matrix[i][j] = stod(new_data);
+              matrix.matrix[i][j] = stod(new_data);
           }
         } else {
           cout << "Insufficient data" << endl;
@@ -107,64 +112,64 @@ double** Fill_Matrix(unsigned rows, unsigned columns){
         }
       }
   return matrix;}
-double** Matrix_Addition(double** mat1, double** mat2){
-        Matrix_Size size0 = Matrix_Len(mat1), size1 = Matrix_Len(mat2);
-        double** matrix = MatrixMK(size0.rows, size0.columns);
+Matrix Matrix_Addition(Matrix mat1, Matrix mat2){
+        Matrix_Size size0 = mat1.size, size1 = mat2.size;
+        Matrix matrix = MatrixMK(size0);
         if (size0.rows == size1.rows && size0.columns == size1.columns && size0.rows && size0.columns){
             for (unsigned i = 0; i<size0.rows; i++){
                 for (unsigned j = 0; j<size0.columns; j++)
-                    matrix[i][j] = mat1[i][j] + mat2[i][j];
+                    matrix.matrix[i][j] = mat1.matrix[i][j] + mat2.matrix[i][j];
             }
         }
         return matrix;
 }
-double** Matrix_Subtraction(double** mat1, double** mat2){
-        Matrix_Size size0 = Matrix_Len(mat1), size1 = Matrix_Len(mat2);
-        double** matrix = MatrixMK(size0.rows, size0.columns);
+Matrix Matrix_Subtraction(Matrix mat1, Matrix mat2){
+        Matrix_Size size0 = mat1.size, size1 = mat2.size;
+        Matrix matrix = MatrixMK(size0);
         if (size0.rows == size1.rows && size0.columns == size1.columns && size0.rows && size0.columns){
             for (unsigned i = 0; i<size0.rows; i++){
                 for (unsigned j = 0; j<size0.columns; j++)
-                    matrix[i][j] = mat1[i][j] - mat2[i][j];
+                    matrix.matrix[i][j] = mat1.matrix[i][j] - mat2.matrix[i][j];
             }
         }
         return matrix;
 }
-double** Matrix_Scalar_Multiplication(double scalar, double** matrix){
-        Matrix_Size size = Matrix_Len(matrix);
-        double** multimat = MatrixMK(size.rows, size.columns);
+Matrix Matrix_Scalar_Multiplication(double scalar, Matrix matrix){
+        Matrix_Size size = matrix.size;
+        Matrix multimat = MatrixMK(size);
         if (size.rows > 0 and size.columns > 0)
                 for (int i = 0; i<size.rows; i++)
                     for (int j=0; j < size.columns; j++)
-                         multimat[i][j] = scalar * matrix[i][j];
+                         multimat.matrix[i][j] = scalar * matrix.matrix[i][j];
         return multimat;
 }
-double** Product_Matrix(double** mat1, double** mat2){
-    Matrix_Size size0 = Matrix_Len(mat1), size1 = Matrix_Len(mat2);
-    double** matrix = MatrixMK(size0.rows, size1.columns);
+Matrix Product_Matrix(Matrix mat1, Matrix mat2){
+    Matrix_Size size0 = mat1.size, size1 = mat2.size;
+    Matrix matrix = MatrixMK(size0);
     if (size1.rows > 0 && size0.rows> 0 && size0.columns == size1.rows){
         for (int i = 0; i < size0.rows; i++){
             for (int k = 0; k < size1.columns; k++){
                 double result = 0;
-                double* new_column = Get_Column(mat2, k);
-                for (int j = 0; j < Column_Len(new_column); j++ ){
-                        result += mat1[i][j] * new_column[j];
+                Row new_column = Get_Column(mat2, k);
+                for (int j = 0; j < new_column.size; j++ ){
+                        result += mat1.matrix[i][j] * new_column.row[j];
                 }
-                matrix[i][k] = result;
+                matrix.matrix[i][k] = result;
             }
         }
     }
     return matrix;
 }
-double** Formulate_Matrix(double** matrix, unsigned rownum, unsigned colnum){
-    Matrix_Size size = Matrix_Len(matrix);
-    double** formulated_matrix = MatrixMK(size.rows-1, size.columns-1);
+Matrix Formulate_Matrix(Matrix matrix, unsigned rownum, unsigned colnum){
+    Matrix_Size size{matrix.size.rows-1, matrix.size.columns-1};
+    Matrix formulated_matrix = MatrixMK(size);
     unsigned k=0;
     for (int i = 0; i < size.rows; i++){
         unsigned w = 0;
         if (i != rownum){
             for (int j = 0; j < size.columns; j++){
                 if (j != colnum){
-                    formulated_matrix[k][w] = matrix[i][j];
+                    formulated_matrix.matrix[k][w] = matrix.matrix[i][j];
                     w++;}
             }
             k++;
@@ -172,14 +177,14 @@ double** Formulate_Matrix(double** matrix, unsigned rownum, unsigned colnum){
     }
     return formulated_matrix;
 }
-double** Matrix_Co_Factors(double** matrix){
+Matrix Matrix_Co_Factors(Matrix matrix){
     int c = 1;
-    Matrix_Size size = Matrix_Len(matrix);
-    double** co_factor_matrix = MatrixMK(size.rows, size.columns);
+    Matrix_Size size = matrix.size;
+    Matrix co_factor_matrix = MatrixMK(size);
     if (size.rows == size.columns && size.rows > 0){
         for (int i = 0; i < size.rows; i++){
             for (int j = 0; j < size.columns; j++){
-                co_factor_matrix[i][j] = c * Matrix_Determinate(Formulate_Matrix(matrix, i, j));
+                co_factor_matrix.matrix[i][j] = c * Matrix_Determinant(Formulate_Matrix(matrix, i, j));
                 cout << endl;
                 c *= -1;
             }
@@ -187,45 +192,45 @@ double** Matrix_Co_Factors(double** matrix){
     }
     return co_factor_matrix;
 }
-double** Matrix_Transpose(double** matrix){
-    Matrix_Size size = Matrix_Len(matrix);
-    double** transposed_matrix = MatrixMK(size.columns, size.rows);
+Matrix Matrix_Transpose(Matrix matrix){
+    Matrix_Size size = matrix.size;
+    Matrix transposed_matrix = MatrixMK(size);
     if (size.rows > 0){
         for (int i = 0; i < size.rows; i++){
-            transposed_matrix[i] = Get_Column(matrix, i);
+            transposed_matrix.matrix[i] = Get_Column(matrix, i).row;
         }
     }
     return transposed_matrix;
 }
-double** Matrix_Inverse(double** matrix){
-    Matrix_Size size = Matrix_Len(matrix);
-    double** Inverse = MatrixMK(size.rows, size.columns);
+Matrix Matrix_Inverse(Matrix matrix){
+    Matrix_Size size = matrix.size;
     if (size.rows > 0 && size.rows == size.columns){
-        double det = Matrix_Determinate(matrix);
-        if (det != 0){Inverse = Matrix_Scalar_Multiplication(1/det, Matrix_Transpose(Matrix_Co_Factors(matrix)));}
+        double det = Matrix_Determinant(matrix);
+        if (det != 0){
+            Matrix Inverse = Matrix_Scalar_Multiplication(1/det, Matrix_Transpose(Matrix_Co_Factors(matrix)));
+            return Inverse;
+        }
     }
-    return Inverse;
+    return MatrixMK(Matrix_Size{0, 0});
 }
-double* RowMK(unsigned columns){
-    double* column = new double[columns+1];
+Row RowMK(unsigned columns){
+    dptr column = new double[columns];
     for (int i=0; i<columns; i++){
         column[i] = 0;
     }
-    column[columns] = ULLONG_MAX;
-    return column;
+    return Row{column, columns};
 }
-double* Get_Column(double** matrix, unsigned colnum){
-    Matrix_Size size = Matrix_Len(matrix);
-    double* row = RowMK(size.rows+1);
+Row Get_Column(Matrix matrix, unsigned colnum){
+    Matrix_Size size = matrix.size;
+    Row row = RowMK(size.rows);
     if (size.rows > 0 && size.columns > 0 && colnum < size.columns){
         unsigned index = 0;
         for (int i=0; i<size.rows; i++, index++)
-            row[index] = matrix[i][colnum];
+            row.row[index] = matrix.matrix[i][colnum];
     }
-    row[size.rows] = ULONG_MAX;
     return row;
 }
-double* Rearrange(double* list, bool reversed = false){
+dptr Rearrange(dptr list, bool reversed = false){
         unsigned index = 0;
         if (!reversed){
             while (index < Column_Len(list) - 1){
@@ -252,9 +257,10 @@ double* Rearrange(double* list, bool reversed = false){
         }
     return list;
 }
-string *Split(string str, string splitter) {
+String_Array Split(string str, string splitter) {
   bool istrue = false;
   string *chunks = NULL, splitted_text;
+  String_Array chunks_Array{chunks, 0};
   for (int i = 0; i < str.length();) {
     if (str[i] == splitter[0]) {
       for (int j = 0; j < splitter.length(); j++){
@@ -266,7 +272,7 @@ string *Split(string str, string splitter) {
       }
       if (istrue){
         i += splitter.length();
-        if (splitted_text.length()) push_back(chunks, splitted_text);
+        if (splitted_text.length()) push_back(chunks_Array, splitted_text);
         splitted_text = "";
         istrue = false;
         continue;
@@ -277,29 +283,33 @@ string *Split(string str, string splitter) {
       splitted_text += str[i];
       if (i + 1 == str.length()) {
         if (splitted_text.length()) {
-          if (splitted_text.length()) push_back(chunks, splitted_text);
+          if (splitted_text.length()) push_back(chunks_Array, splitted_text);
         }
       }
     }
     i++;
   }
-  return chunks;
+  return chunks_Array;
 }
-void Print(double** matrix){
-    Matrix_Size size = Matrix_Len(matrix);
+void Print(Matrix matrix){
+    Matrix_Size size = matrix.size;
     for (int i=0; i<size.rows; i++){
         for (int j=0; j<size.columns; j++)
-            cout << left << setw(17) << matrix[i][j];
+            cout << left << setw(17) << matrix.matrix[i][j];
         cout << '\n';
     }
 }
-void Print(double** matrix, unsigned int precision){
-    Matrix_Size size = Matrix_Len(matrix);
+void Print(Matrix matrix, unsigned int precision){
+    Matrix_Size size = matrix.size;
     for (int i=0; i<size.rows; i++){
         for (int j=0; j<size.columns; j++)
-            cout << setw(precision) << matrix[i][j];
+            cout << setw(precision) << matrix.matrix[i][j];
         cout << '\n';
     }
+}
+void Print(String_Array str_array){
+    for (int i=0; i<str_array.size; i++)
+        cout << str_array.array[i] << '\n';
 }
 void factoring(){
     a:
@@ -333,21 +343,21 @@ void factoring(){
         cout << "\n";
         goto a;
 }
-void Matrix_CFill(double** &matrix, unsigned c){
-    Matrix_Size size = Matrix_Len(matrix);
+void Matrix_CFill(Matrix matrix, unsigned c){
+    Matrix_Size size = matrix.size;
     if (size.rows && size.columns){
-        for (int i=0; i<3/*size.rows*/; i++){
-            for (int j=0; j<3/*size.columns*/; j++){
-                matrix[i][j] = c;
+        for (int i=0; i<size.rows; i++){
+            for (int j=0; j<size.columns; j++){
+                matrix.matrix[i][j] = c;
             }
         }
     }
 }
-void push_back(string*& str_array, string item){
-    size_t size = ArrLen(str_array);
-    string *new_array = (string*) realloc(str_array, sizeof(string) * (size+2));
+void push_back(String_Array &str_array, string item){
+    string *new_array = (string*) realloc(str_array.array, sizeof(string) * (str_array.size+1));
     if (new_array != NULL){
-        str_array = new_array;
-        str_array[size] = item;
+        str_array.array = new_array;
+        str_array.array[str_array.size] = item;
+        str_array.size++;
     }else{free(new_array);}
 }

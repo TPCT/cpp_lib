@@ -81,6 +81,32 @@ double Matrix_Determinant(Matrix matrix){
         return result;
     }
 }
+pptr Permute(DBL_Array* Array, unsigned *index, unsigned start, unsigned end, pptr container){
+    end = (end < UINT_MAX) ? end : (*Array).size;
+    if (!index){
+        double *temp = (*Array).array;
+        for (int i=0; i<=(*Array).size; i++, (temp)++);
+        for (; (double)(*((*Array).array)) != 0; (temp)++);
+        unsigned &ref = reinterpret_cast<unsigned &>(temp);
+        index = &ref;
+        *index = 0;
+    }
+    long long size = factorial((*Array).size);
+    if (!container){container = new double*[(*Array).size];}
+    if (start == end){
+         double *new_array = new double[(*Array).size];
+        for (int i=0; i<(*Array).size; i++){
+        new_array[i] = (*Array).array[i];}
+        container[*index] = new_array;
+        (*index)++;
+    }
+    for (int i=start; i<end; i++){
+        Swap((*Array).array[start], (*Array).array[i]);
+        Permute(Array, index, start+1, end, container);
+        Swap((*Array).array[start], (*Array).array[i]);
+    }
+    return container;
+}
 Matrix MatrixMK(Matrix_Size size){
     pptr matrix = new double*[size.rows];
     for (int i=0; i<size.rows; i++){
@@ -361,3 +387,4 @@ void push_back(String_Array &str_array, string item){
         str_array.size++;
     }else{free(new_array);}
 }
+void Swap(double &a, double &b){double temp = a; a = b; b = temp;}

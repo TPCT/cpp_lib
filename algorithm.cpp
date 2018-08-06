@@ -1,9 +1,4 @@
 #include "algorithm.h"
-int main(){
-    DBL_Array array = DBL_ARR_MK(new double[5]{5, 1, 3, 1, 2}, 5);
-    cout << Has_Duplicates(array) << '\n';
-    return 0;
-}
 bool Has_Duplicates(DBL_Array array){
     DBL_Array new_array = DBL_ARR_MK(new double[array.size], array.size);
     for (int i=0, j=0; i<array.size-1; i++){

@@ -1,4 +1,14 @@
 #include "maths.h"
+void intersection(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int& ix, int& iy){
+    double m1 = (x1 - x2) == 0 ? (INFINITY) : ((y1 - y2) == 0 ? 0 : (y2-y1)/(x2-x1)),
+           m2 = (x3 - x4) == 0 ? (INFINITY) : ((y3 - y4) == 0 ? 0 : (y4-y3)/(x4-x3));
+    if (m1 == m2)
+        ix = INFINITY, iy=INFINITY;
+    else{
+        ix = (m1 == INFINITY) ? (x1) : ((m2 == INFINITY) ? (x3) : ((y3 - y1 + m1 * x1 - m2 * x3)/(m1 - m2)));
+        iy = (m1 == 0) ? (y1) : ((m2 == 0) ? (y3) : (m1*(ix - x1) + y1));
+    }
+}
 Point MPoint(double x1, double y1, double x2, double y2){
     Point mpoint{(x1 + x2)/2, (y1 + y2)/2};
     return mpoint;

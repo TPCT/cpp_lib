@@ -1,8 +1,5 @@
-#include <iostream>
 #include <climits>
 #include <string>
-#include <iomanip>
-using namespace std;
 /* this typedef to make the same pointer changes it's value multiple times
     typedef struct {const double x=0; const double y=0;} Point;
     typedef struct {ptr row=0; unsigned size=0;} Row;
@@ -32,6 +29,7 @@ void factoring();
 void Matrix_CFill(Matrix, unsigned);
 void push_back(String_Array&, string);
 void Swap(double &a, double &b);
+void intersection(int, int, int, int, int, int, int, int, int&, int&);
 unsigned Column_Len(dptr column);
 Matrix_Size Matrix_Len(Matrix);
 size_t ArrLen(string*);
